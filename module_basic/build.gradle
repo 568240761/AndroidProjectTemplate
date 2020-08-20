@@ -1,0 +1,10 @@
+apply from: '../module.gradle'
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation kotlin_stdlib
+    implementation deps.core_ktx
+    implementation deps.appcompat
+
+    implementation project(":module_log")
+}

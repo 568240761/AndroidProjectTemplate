@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!--  用于启动页面，避免白屏或黑屏  -->
+    <style name="Basic_Activity_Splash" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+
+    <!--如果不加上“android:windowFullscreen”属性，在Android8.0上如果指定了屏幕方向，会抛异常，导致程序崩溃，需要注意！！！-->
+    <style name="Basic_Activity_Translucent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+</resources>

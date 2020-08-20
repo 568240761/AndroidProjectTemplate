@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
@@ -7,13 +7,10 @@ android {
     buildToolsVersion build_versions.build_tools
 
     defaultConfig {
-        applicationId "com.ly.android"
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
-        versionCode 1
-        versionName "1.0"
 
-        vectorDrawables.useSupportLibrary = true
+        consumerProguardFiles "consumer-rules.pro"
     }
 
     compileOptions {
@@ -31,14 +28,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation kotlin_stdlib
-    implementation deps.core_ktx
-    implementation deps.appcompat
-    implementation deps.constraintlayout
-
-    implementation project(":module_basic")
 }
