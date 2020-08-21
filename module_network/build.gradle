@@ -3,4 +3,6 @@ apply from: '../module.gradle'
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation kotlin_stdlib
+    implementation deps.okhttp
+    implementation deps.okhttp_logging
 }

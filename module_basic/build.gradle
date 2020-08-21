@@ -6,5 +6,5 @@ dependencies {
     implementation deps.core_ktx
     implementation deps.appcompat
 
-    implementation project(":module_log")
+    implementation project(':module_util')
 }

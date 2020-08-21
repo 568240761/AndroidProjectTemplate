@@ -1,4 +1,4 @@
-package com.ly.module.basic.util
+package com.ly.module.util
 
 import android.content.Context
 import android.content.Intent
@@ -22,7 +22,9 @@ class FileProviderUtil {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
                     context,
-                    authority(context),
+                    authority(
+                        context
+                    ),
                     file
                 )
             } else {
@@ -39,7 +41,11 @@ class FileProviderUtil {
                 install.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             }
 
-            val fileUri = fileToUri(context, apk)
+            val fileUri =
+                fileToUri(
+                    context,
+                    apk
+                )
 
             install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             install.setDataAndType(

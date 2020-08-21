@@ -1,4 +1,4 @@
-package com.ly.module.basic.util
+package com.ly.module.util
 
 import android.content.Context
 import android.util.TypedValue
@@ -42,7 +42,8 @@ class ResourcesUtil {
          * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
          */
         fun dip2px(context: Context, dpValue: Float): Int {
-            val scale = getDensity(context)
+            val scale =
+                getDensity(context)
             return (dpValue * scale).toInt()
         }
 
@@ -50,7 +51,8 @@ class ResourcesUtil {
          * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
          */
         fun px2dip(context: Context, pxValue: Float): Int {
-            val scale = getDensity(context)
+            val scale =
+                getDensity(context)
             return (pxValue / scale).toInt()
         }
 
@@ -58,14 +60,24 @@ class ResourcesUtil {
          * 返回屏幕宽度，单位dp
          */
         fun retScreenWidthDp(context: Context): Int {
-            return px2dip(context, getScreenWidthPx(context).toFloat())
+            return px2dip(
+                context,
+                getScreenWidthPx(
+                    context
+                ).toFloat()
+            )
         }
 
         /**
          * 返回屏幕高度，单位dp
          */
         fun retScreenHeightDp(context: Context): Int {
-            return px2dip(context, getScreenHeightPx(context).toFloat())
+            return px2dip(
+                context,
+                getScreenHeightPx(
+                    context
+                ).toFloat()
+            )
         }
 
         /**

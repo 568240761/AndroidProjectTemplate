@@ -1,4 +1,4 @@
-package com.ly.module.log
+package com.ly.module.util.log
 
 import android.util.Log
 

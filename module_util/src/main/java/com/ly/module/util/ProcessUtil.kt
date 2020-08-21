@@ -1,10 +1,10 @@
-package com.ly.module.basic.util
+package com.ly.module.util
 
 import android.app.ActivityManager
 import android.content.Context
 import androidx.core.content.ContextCompat
-import com.ly.module.log.logDebug
-import com.ly.module.log.logError
+import com.ly.module.util.log.logDebug
+import com.ly.module.util.log.logError
 
 /**
  * Created by Lan Yang on 2020/8/20
@@ -20,7 +20,10 @@ class ProcessUtil {
          */
         fun isMainProcess(context: Context): Boolean {
             val pId = android.os.Process.myPid()
-            logDebug("ProcessUtil-isMainProcess", "当前进程ID为:$pId")
+            logDebug(
+                "ProcessUtil-isMainProcess",
+                "当前进程ID为:$pId"
+            )
 
             var processName: String? = null
             val am = ContextCompat.getSystemService(context, ActivityManager::class.java)
@@ -31,10 +34,17 @@ class ProcessUtil {
                     try {
                         if (info.pid == pId) {
                             processName = info.processName
-                            logDebug("ProcessUtil-MainProcess", "当前进程名为:" + processName!!)
+                            logDebug(
+                                "ProcessUtil-MainProcess",
+                                "当前进程名为:" + processName!!
+                            )
                         }
                     } catch (e: Exception) {
-                        logError("ProcessUtil-MainProcess", "", e)
+                        logError(
+                            "ProcessUtil-MainProcess",
+                            "",
+                            e
+                        )
                     }
 
                 }

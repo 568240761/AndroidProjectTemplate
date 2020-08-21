@@ -1,5 +1,11 @@
 # AndroidProjectTemplate
 快速搭建Android项目
+## 模块简介
+### app
+### module_basic
+### module_util
+### module_network
+### module_image
 ## 适配问题
 ### Android 8.0
 #### Activity的透明主题崩溃问题该异常为：
