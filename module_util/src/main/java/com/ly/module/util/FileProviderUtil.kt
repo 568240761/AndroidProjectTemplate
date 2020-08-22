@@ -22,9 +22,7 @@ class FileProviderUtil {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
                     context,
-                    authority(
-                        context
-                    ),
+                    authority(context),
                     file
                 )
             } else {
@@ -32,7 +30,12 @@ class FileProviderUtil {
             }
         }
 
-        /**安装APK文件*/
+        /**
+         * 安装APK文件
+         *
+         * Android 8.0+更新应用时跳转到安装页面需要下面的权限
+         * <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+         */
         fun installApk(context: Context, apk: File) {
             val install = Intent()
             install.action = Intent.ACTION_VIEW
@@ -41,11 +44,7 @@ class FileProviderUtil {
                 install.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             }
 
-            val fileUri =
-                fileToUri(
-                    context,
-                    apk
-                )
+            val fileUri = fileToUri(context, apk)
 
             install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             install.setDataAndType(

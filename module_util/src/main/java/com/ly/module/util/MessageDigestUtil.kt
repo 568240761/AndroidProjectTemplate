@@ -50,6 +50,21 @@ class MessageDigestUtil {
         }
 
         /**
+         * 使用SHA1算法获取[byteArray]唯一的散列值
+         */
+        fun getSHAMessageDigest(byteArray: ByteArray): String {
+            return try {
+                val digest = MessageDigest.getInstance("SHA1")
+                digest.reset()
+                digest.update(byteArray)
+                getHexString(digest.digest())
+            } catch (e: NoSuchAlgorithmException) {
+                logError("MessageDigestUtil-getSHAMessageDigest", "", e)
+                String(byteArray)
+            }
+        }
+
+        /**
          * 将[bytes]数组转为十六进制表示的字符串
          */
         fun getHexString(bytes: ByteArray): String {
@@ -63,7 +78,7 @@ class MessageDigestUtil {
             }
 
             val value = sb.toString().toUpperCase(Locale.getDefault())
-            logDebug("MessageDigestUtil-getHexString",value)
+            logDebug("MessageDigestUtil-getHexString", value)
             return value
         }
     }
