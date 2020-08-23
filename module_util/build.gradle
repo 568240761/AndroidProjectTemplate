@@ -5,4 +5,5 @@ dependencies {
     implementation kotlin_stdlib
     implementation deps.core_ktx
     implementation deps.appcompat
+    implementation deps.gson
 }

@@ -5,4 +5,7 @@ dependencies {
     implementation kotlin_stdlib
     implementation deps.okhttp
     implementation deps.okhttp_logging
+    implementation deps.gson
+
+    implementation project(":module_util")
 }

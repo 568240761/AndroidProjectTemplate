@@ -20,6 +20,8 @@ deps.constraintlayout = 'androidx.constraintlayout:constraintlayout:2.0.0'
 deps.okhttp = 'com.squareup.okhttp3:okhttp:4.8.1'
 deps.okhttp_logging = 'com.squareup.okhttp3:logging-interceptor:4.8.1'
 
+deps.gson = 'com.google.code.gson:gson:2.8.6'
+
 deps.test_junit = 'junit:junit:4.12'
 deps.android_test_junit = 'androidx.test.ext:junit:1.1.1'
 deps.android_test_espresso = 'androidx.test.espresso:espresso-core:3.2.0'

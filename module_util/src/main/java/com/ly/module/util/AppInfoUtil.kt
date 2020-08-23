@@ -13,6 +13,7 @@ import com.ly.module.util.log.logDebug
  * 获取应用信息的工具类
  */
 class AppInfoUtil {
+
     companion object {
 
         /**
