@@ -11,6 +11,8 @@ android {
         targetSdkVersion build_versions.target_sdk
 
         consumerProguardFiles "consumer-rules.pro"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {

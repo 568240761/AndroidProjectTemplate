@@ -6,6 +6,11 @@ dependencies {
     implementation deps.okhttp
     implementation deps.okhttp_logging
     implementation deps.gson
+    implementation deps.annotation
+
+    testImplementation deps.test_junit
+    androidTestImplementation deps.android_test_junit
+    androidTestImplementation deps.android_test_espresso
 
     implementation project(":module_util")
 }
