@@ -1,5 +1,6 @@
 package com.ly.module.network
 
+import okhttp3.Response
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -25,8 +26,8 @@ class ExampleUnitTest {
 //        print("name=${data?.name}")
 
 //        val callback = object : RequestBuilder<List<TestData>>() {}
-////        val data = callback.convertData1()
-////        print("size=${data.size}")
+//        val data = callback.convertData1()
+//        print("size=${data.size}")
 
 //        val callback = object : ConvertResponseData<Unit>() {}
 //        callback.convertData1()

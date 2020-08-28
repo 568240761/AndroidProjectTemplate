@@ -12,13 +12,17 @@ import java.util.concurrent.TimeUnit
  */
 object NetworkManager {
 
-    private val tag = this.javaClass.simpleName
+    /**默认的超时时间为 10s*/
+    private const val DEFAULT_TIMEOUT = 10L
 
-    /**默认的超时时间为 5s*/
-    private const val DEFAULT_TIMEOUT = 5L
+    /**上传文件的超时时间为 5min*/
+    private const val UPLOAD_TIMEOUT = 5L
+
+    /**上传文件的超时时间为 5min*/
+    private const val DOWNLOAD_TIMEOUT = 5L
 
     /**设置全局固定的请求头*/
-    private val globalFixedHeaders = HashMap<String, Any>()
+    val globalFixedHeaders = HashMap<String, Any>()
 
     private val okHttpClientBuilder = OkHttpClient.Builder()
         .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
@@ -40,4 +44,16 @@ object NetworkManager {
 
         okHttpClient = okHttpClientBuilder.build()
     }
+
+    internal fun getUploadOkHttpClient() = okHttpClient.newBuilder()
+        .readTimeout(UPLOAD_TIMEOUT, TimeUnit.MINUTES)
+        .writeTimeout(UPLOAD_TIMEOUT, TimeUnit.MINUTES)
+        .connectTimeout(UPLOAD_TIMEOUT, TimeUnit.MINUTES)
+        .build()
+
+    internal fun getDownloadOkHttpClient() = okHttpClient.newBuilder()
+        .readTimeout(DOWNLOAD_TIMEOUT, TimeUnit.MINUTES)
+        .writeTimeout(DOWNLOAD_TIMEOUT, TimeUnit.MINUTES)
+        .connectTimeout(DOWNLOAD_TIMEOUT, TimeUnit.MINUTES)
+        .build()
 }
