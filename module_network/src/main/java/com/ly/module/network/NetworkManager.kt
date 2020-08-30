@@ -15,12 +15,6 @@ object NetworkManager {
     /**默认的超时时间为 10s*/
     private const val DEFAULT_TIMEOUT = 10L
 
-    /**上传文件的超时时间为 5min*/
-    private const val UPLOAD_TIMEOUT = 5L
-
-    /**上传文件的超时时间为 5min*/
-    private const val DOWNLOAD_TIMEOUT = 5L
-
     /**设置全局固定的请求头*/
     val globalFixedHeaders = HashMap<String, Any>()
 
@@ -45,15 +39,8 @@ object NetworkManager {
         okHttpClient = okHttpClientBuilder.build()
     }
 
-    internal fun getUploadOkHttpClient() = okHttpClient.newBuilder()
-        .readTimeout(UPLOAD_TIMEOUT, TimeUnit.MINUTES)
-        .writeTimeout(UPLOAD_TIMEOUT, TimeUnit.MINUTES)
-        .connectTimeout(UPLOAD_TIMEOUT, TimeUnit.MINUTES)
-        .build()
-
-    internal fun getDownloadOkHttpClient() = okHttpClient.newBuilder()
-        .readTimeout(DOWNLOAD_TIMEOUT, TimeUnit.MINUTES)
-        .writeTimeout(DOWNLOAD_TIMEOUT, TimeUnit.MINUTES)
-        .connectTimeout(DOWNLOAD_TIMEOUT, TimeUnit.MINUTES)
-        .build()
+    internal fun getOkHttpClientBuilder(time: Long) = okHttpClient.newBuilder()
+        .readTimeout(time, TimeUnit.SECONDS)
+        .writeTimeout(time, TimeUnit.SECONDS)
+        .connectTimeout(time, TimeUnit.SECONDS)
 }

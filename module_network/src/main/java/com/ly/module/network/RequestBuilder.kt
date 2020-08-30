@@ -1,18 +1,20 @@
 package com.ly.module.network
 
 import android.net.Uri
-import com.google.gson.TypeAdapter
-import com.google.gson.reflect.TypeToken
 import com.ly.module.util.GsonUtil
 import com.ly.module.util.log.logDebug
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
-import java.lang.reflect.ParameterizedType
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -22,31 +24,33 @@ import kotlin.coroutines.suspendCoroutine
  * Created by Lan Yang on 2020/8/23
  *
  * T 表明网络响应的数据需要通过gson转为实体类型
- *
- * TODO:还差进度未完成
+ * TODO:待测试
  */
-abstract class RequestBuilder<T> {
+class RequestBuilder {
 
     private val tag = this.javaClass.simpleName
 
-    private val typeToken by lazy {
-        val type = this.javaClass.genericSuperclass
-        val typeArray = (type as ParameterizedType).actualTypeArguments
-        TypeToken.get(typeArray[0])
-    }
+    companion object {
+        const val DEFAULT_MAX_TIMEOUT = 5 * 60 * 1000L
 
-    private val typeAdapter: TypeAdapter<T> by lazy {
-        @Suppress("UNCHECKED_CAST")
-        GsonUtil.gson.getAdapter(typeToken) as TypeAdapter<T>
-    }
+        private val urlSet = HashSet<String>()
 
-    private fun convertData(response: ResponseBody): T {
-        val body = response.string()
-        return typeAdapter.fromJson(body)
+        private val mutex = Mutex()
+
+        private suspend fun addUrl(str: String): Boolean {
+            return mutex.withLock { urlSet.add(str) }
+        }
+
+        private suspend fun removeUrl(str: String) {
+            mutex.withLock { urlSet.remove(str) }
+        }
     }
 
     /**请求路径*/
     private var url: String? = null
+
+    /**是否记录请求路径，默认记录；相同请求路径不允许同时多次发送，预防多次点击导致发送多次相同的请求*/
+    private var isRecordUrl = true
 
     /**请求参数*/
     private var params: Any? = null
@@ -74,11 +78,37 @@ abstract class RequestBuilder<T> {
     /**上传多个字节数组*/
     private var uploadByteArrayList: List<UploadByteArray>? = null
 
+    /**文件下载后存放地址，为空表示不存放文件*/
+    private var downloadPath: String? = null
+
     /**是否为下载文件的请求*/
     private var isDownload = false
 
+    /**是否显示上传的进度*/
+    private var isUploadProgress = false
+
+    /**是否显示下载的进度*/
+    private var isDownloadProgress = false
+
+    /**未设置超时时间，使用默认超时时间；单位为秒*/
+    private var timeout = -1L
+
+    /**在协程之间传输数值*/
+    private val uploadChannel by lazy {
+        Channel<Int>()
+    }
+
+    /**在协程之间传输数值*/
+    private val downloadChannel by lazy {
+        Channel<Int>()
+    }
+
     fun url(url: String) = apply {
         this.url = url
+    }
+
+    fun recordUrl(isRecord: Boolean) = apply {
+        this.isRecordUrl = isRecord
     }
 
     fun params(params: Any) = apply {
@@ -145,12 +175,57 @@ abstract class RequestBuilder<T> {
         this.uploadByteArrayList = uploadByteArrayList
     }
 
-    fun download() = apply {
-        this.isDownload = true
+    /**
+     * 显示上传进度
+     *
+     * 该方法应该在[Dispatchers.Main]上下文环境调用
+     */
+    suspend fun uploadProgress(progressFunc: (progress: Int) -> Unit) = apply {
+        isUploadProgress = true
+
+        for (progress in uploadChannel) {
+            progressFunc(progress)
+        }
     }
 
-    suspend fun build(): T {
+    /**
+     * 下载文件，存放至[downloadPath]
+     */
+    fun download(downloadPath: String? = null) = apply {
+        this.isDownload = true
+        this.downloadPath = downloadPath
+    }
+
+    /**
+     * 显示下载进度
+     *
+     * 该方法应该在[Dispatchers.Main]上下文环境调用
+     */
+    suspend fun downloadProgress(progressFunc: (progress: Int) -> Unit) = apply {
+        isDownloadProgress = true
+
+        for (progress in downloadChannel) {
+            progressFunc(progress)
+        }
+    }
+
+    /**
+     * 设置超时[timeout]
+     */
+    fun timeout(timeout: Long) = apply {
+        this.timeout = timeout
+    }
+
+    suspend fun build(): Response {
         return withContext(Dispatchers.IO) {
+            if (isRecordUrl) {
+                if (url.isNullOrEmpty())
+                    throw IllegalArgumentException("请求路径不能为空")
+
+                logDebug(tag, "记录[$url]")
+                if (!addUrl(url!!))
+                    throw IllegalArgumentException("存在相同的[$url]正在请求中")
+            }
 
             val requestBuilder = createRequestHeader()
 
@@ -168,13 +243,17 @@ abstract class RequestBuilder<T> {
                             //请求正文为空时，POST、PATCH、PUT会抛出异常，DELETE不会抛出异常
                             requestBuilder.method(method, null).url(url!!)
                         }
+
                         REQUEST_BODY_TYPE_FORM -> {
                             val formBuilder = FormBody.Builder()
 
                             if (params != null && params is Map<*, *>) {
                                 val list = (params!! as Map<*, *>).toList()
                                 for (pair in list) {
-                                    formBuilder.add(pair.first.toString(), pair.second.toString())
+                                    formBuilder.add(
+                                        pair.first.toString(),
+                                        pair.second.toString()
+                                    )
                                 }
                             }
 
@@ -190,7 +269,7 @@ abstract class RequestBuilder<T> {
                             val requestBody =
                                 content.toRequestBody("application/json; charset=utf-8".toMediaType())
 
-                            requestBuilder.method(method, requestBody)
+                            requestBuilder.method(method, requestBody).url(url!!)
                         }
 
                         REQUEST_BODY_TYPE_UPLOAD -> {
@@ -199,19 +278,23 @@ abstract class RequestBuilder<T> {
                                     val file = uploadFile!!.first
                                     val contentType = uploadFile!!.second
 
-                                    requestBuilder.method(
-                                        method,
-                                        file.asRequestBody(contentType.toMediaType())
-                                    ).url(url!!)
+                                    val requestBody = createUploadRequestBody(
+                                        coroutineScope = this,
+                                        requestBody = file.asRequestBody(contentType.toMediaType())
+                                    )
+
+                                    requestBuilder.method(method, requestBody).url(url!!)
                                 }
                                 uploadByteArray != null -> {
                                     val byteArray = uploadByteArray!!.first
                                     val contentType = uploadByteArray!!.second
 
-                                    requestBuilder.method(
-                                        method,
-                                        byteArray.toRequestBody(contentType.toMediaType())
+                                    val requestBody = createUploadRequestBody(
+                                        coroutineScope = this,
+                                        requestBody = byteArray.toRequestBody(contentType.toMediaType())
                                     )
+
+                                    requestBuilder.method(method, requestBody).url(url!!)
                                 }
                                 else -> {
                                     throw IllegalArgumentException("构建请求失败，请检查！")
@@ -237,7 +320,8 @@ abstract class RequestBuilder<T> {
                                 uploadFileList!!.forEach {
                                     val file = it.file
                                     val contentType = it.contentType
-                                    val requestBody = file.asRequestBody(contentType.toMediaType())
+                                    val requestBody =
+                                        file.asRequestBody(contentType.toMediaType())
 
                                     builder.addFormDataPart(it.key, it.value, requestBody)
                                 }
@@ -254,7 +338,12 @@ abstract class RequestBuilder<T> {
                                 }
                             }
 
-                            requestBuilder.method(method, builder.build()).url(url!!)
+                            val requestBody = createUploadRequestBody(
+                                coroutineScope = this,
+                                requestBody = builder.build()
+                            )
+
+                            requestBuilder.method(method, requestBody).url(url!!)
                         }
                     }
                 }
@@ -262,56 +351,55 @@ abstract class RequestBuilder<T> {
 
             val request = requestBuilder.build()
 
-            val okHttpClient = when {
-                isDownload -> NetworkManager.getDownloadOkHttpClient()
-                uploadFile != null -> NetworkManager.getUploadOkHttpClient()
-                uploadByteArray != null -> NetworkManager.getUploadOkHttpClient()
-                !uploadFileList.isNullOrEmpty() -> NetworkManager.getUploadOkHttpClient()
-                !uploadByteArrayList.isNullOrEmpty() -> NetworkManager.getUploadOkHttpClient()
-                else -> NetworkManager.okHttpClient
-            }
+            val okHttpClient = getOkHttpClient(this)
 
             val call = okHttpClient.newCall(request)
 
             if (!isActive) {//检查协程是否被取消
+                if (isRecordUrl) {
+                    logDebug(tag, "移除记录[$url]")
+                    removeUrl(url!!)
+                }
+
                 throw CancellationException("请求[${url}]被取消")
             }
 
-            suspendCoroutine { continuation: Continuation<T> ->
+            suspendCoroutine { continuation: Continuation<Response> ->
                 call.enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         logDebug(tag, "请求失败")
+
+                        if (isDownload && !downloadPath.isNullOrEmpty()) {//下载失败，删除文件
+                            val file = File(downloadPath!!)
+                            if (file.exists()) {
+                                file.delete()
+                            }
+                        }
+
+                        if (isRecordUrl) {
+                            this@withContext.launch {
+                                logDebug(tag, "移除记录[$url]")
+                                removeUrl(url!!)
+                            }
+                        }
+
                         continuation.resumeWithException(e)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
                         logDebug(tag, "请求成功")
+
+                        if (isRecordUrl) {
+                            this@withContext.launch {
+                                logDebug(tag, "移除记录[$url]")
+                                removeUrl(url!!)
+                            }
+                        }
+
                         if (!isActive) {//检查协程是否被取消
                             continuation.resumeWithException(CancellationException("请求[${url}]被取消"))
                         } else {
-                            when (typeToken.rawType.name) {
-                                Unit.toString() -> {
-                                    @Suppress("UNCHECKED_CAST")
-                                    continuation.resume(Unit as T)
-                                }
-                                Response::class.java.name -> {
-                                    @Suppress("UNCHECKED_CAST")
-                                    continuation.resume(response as T)
-                                }
-                                else -> {
-                                    val value = if (response.body != null) {
-                                        response.body!!.string()
-                                    } else {
-                                        ""
-                                    }
-
-                                    try {
-                                        continuation.resume(typeAdapter.fromJson(value))
-                                    } catch (e: Exception) {
-                                        continuation.resumeWithException(e)
-                                    }
-                                }
-                            }
+                            continuation.resume(response)
                         }
                     }
                 })
@@ -357,5 +445,64 @@ abstract class RequestBuilder<T> {
             }
         }
         return Uri.encode(requestUrl)
+    }
+
+    private fun createUploadRequestBody(
+        coroutineScope: CoroutineScope,
+        requestBody: RequestBody
+    ): RequestBody {
+        return if (isUploadProgress) {
+            ProgressRequestBody(
+                requestBody = requestBody,
+                coroutineScope = coroutineScope,
+                channel = uploadChannel
+            )
+        } else {
+            requestBody
+        }
+    }
+
+    private fun getOkHttpClient(coroutineScope: CoroutineScope): OkHttpClient {
+        return when {
+            isDownload -> {
+                NetworkManager.getOkHttpClientBuilder(if (timeout > 0) timeout else DEFAULT_MAX_TIMEOUT)
+                    .addNetworkInterceptor { chain ->
+                        val response = chain.proceed(chain.request())
+                        response.newBuilder()
+                            .body(
+                                ProgressResponseBody(
+                                    responseBody = response.body!!,
+                                    coroutineScope = coroutineScope,
+                                    channel = downloadChannel,
+                                    path = downloadPath
+                                )
+                            )
+                            .build()
+                    }
+                    .build()
+            }
+            uploadFile != null -> {
+                NetworkManager.getOkHttpClientBuilder(if (timeout > 0) timeout else DEFAULT_MAX_TIMEOUT)
+                    .build()
+            }
+            uploadByteArray != null -> {
+                NetworkManager.getOkHttpClientBuilder(if (timeout > 0) timeout else DEFAULT_MAX_TIMEOUT)
+                    .build()
+            }
+            !uploadFileList.isNullOrEmpty() -> {
+                NetworkManager.getOkHttpClientBuilder(if (timeout > 0) timeout else DEFAULT_MAX_TIMEOUT)
+                    .build()
+            }
+            !uploadByteArrayList.isNullOrEmpty() -> {
+                NetworkManager.getOkHttpClientBuilder(if (timeout > 0) timeout else DEFAULT_MAX_TIMEOUT)
+                    .build()
+            }
+            else -> {
+                if (timeout > 0)
+                    NetworkManager.getOkHttpClientBuilder(timeout).build()
+                else
+                    NetworkManager.okHttpClient
+            }
+        }
     }
 }

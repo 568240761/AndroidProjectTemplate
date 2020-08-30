@@ -1,6 +1,5 @@
 package com.ly.module.network
 
-import okhttp3.Response
 import org.junit.Test
 
 import org.junit.Assert.*
