@@ -1,5 +1,6 @@
 package com.ly.module.network
 
+import kotlinx.coroutines.*
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -30,5 +31,50 @@ class ExampleUnitTest {
 
 //        val callback = object : ConvertResponseData<Unit>() {}
 //        callback.convertData1()
+    }
+
+    @Test
+    fun testDataClass() {
+        val testData1 = TestData(name = "你好", age = TestData1(12))
+        println(testData1)
+        println(testData1.hashCode())
+        println()
+
+        val testData2 = TestData(name = "好", age = TestData1(12))
+        println(testData2)
+        println(testData2.hashCode())
+        println()
+
+        //copy对实例的属性是浅复制
+        val copy = testData1.copy()
+        println(copy == testData1)
+        println(copy === testData1)
+
+        println(copy.name == testData1.name)
+        println(copy.name === testData1.name)
+
+        println(copy.age == testData1.age)
+        println(copy.age === testData1.age)
+    }
+
+    @Test
+    fun testSupervisorJob() {
+        runBlocking {
+            val scope = CoroutineScope(SupervisorJob())
+
+            scope.launch {
+                delay(200)
+                println("1111")
+                throw IllegalArgumentException()
+            }
+
+            scope.launch {
+                delay(400)
+                println("22222")
+            }
+
+            delay(1000)
+            println("done")
+        }
     }
 }

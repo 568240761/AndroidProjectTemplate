@@ -4,10 +4,10 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation kotlin_stdlib
     implementation kotlinx_coroutines_android
+    implementation deps.annotation
     implementation deps.okhttp
     implementation deps.okhttp_logging
     implementation deps.gson
-    implementation deps.annotation
 
     testImplementation deps.test_junit
     androidTestImplementation deps.android_test_junit

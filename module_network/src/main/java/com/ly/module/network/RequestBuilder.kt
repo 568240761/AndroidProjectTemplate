@@ -5,26 +5,24 @@ import com.ly.module.util.GsonUtil
 import com.ly.module.util.log.logDebug
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
+import kotlin.IllegalStateException
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlin.math.log
 
 /**
  * Created by Lan Yang on 2020/8/23
  *
  * T 表明网络响应的数据需要通过gson转为实体类型
- * TODO:待测试
+ * TODO:待测试、协程被取消(addUrl、removeUrl是否能正常执行)
  */
 class RequestBuilder {
 
@@ -35,22 +33,34 @@ class RequestBuilder {
 
         private val urlSet = HashSet<String>()
 
-        private val mutex = Mutex()
+        private fun addUrl(str: String): Boolean {
+            val flag = urlSet.add(str)
 
-        private suspend fun addUrl(str: String): Boolean {
-            return mutex.withLock { urlSet.add(str) }
+            if (flag) {
+                logDebug("addUrl", "记录[$str]成功")
+            }
+
+            return flag
         }
 
-        private suspend fun removeUrl(str: String) {
-            mutex.withLock { urlSet.remove(str) }
+        private fun removeUrl(str: String): Boolean {
+            val flag = urlSet.remove(str)
+
+            if (flag) {
+                logDebug("removeUrl", "移除[$str]成功")
+            } else {
+                logDebug("removeUrl", "未找到[$str]")
+            }
+
+            return flag
         }
     }
 
     /**请求路径*/
     private var url: String? = null
 
-    /**是否记录请求路径，默认记录；相同请求路径不允许同时多次发送，预防多次点击导致发送多次相同的请求*/
-    private var isRecordUrl = true
+    /**是否记录请求，默认记录*/
+    private var isRecordUrl: Boolean = true
 
     /**请求参数*/
     private var params: Any? = null
@@ -107,8 +117,8 @@ class RequestBuilder {
         this.url = url
     }
 
-    fun recordUrl(isRecord: Boolean) = apply {
-        this.isRecordUrl = isRecord
+    fun recordUrl(isRecordUrl: Boolean) = apply {
+        this.isRecordUrl = isRecordUrl
     }
 
     fun params(params: Any) = apply {
@@ -217,15 +227,14 @@ class RequestBuilder {
     }
 
     suspend fun build(): Response {
-        return withContext(Dispatchers.IO) {
-            if (isRecordUrl) {
-                if (url.isNullOrEmpty())
-                    throw IllegalArgumentException("请求路径不能为空")
 
-                logDebug(tag, "记录[$url]")
-                if (!addUrl(url!!))
-                    throw IllegalArgumentException("存在相同的[$url]正在请求中")
-            }
+        if (url.isNullOrEmpty())
+            throw IllegalArgumentException("请求路径不能为空")
+
+        if (isRecordUrl && !addUrl(url!!))
+            throw IllegalStateException("存在相同的[$url]正在执行")
+
+        val response = coroutineScope {
 
             val requestBuilder = createRequestHeader()
 
@@ -297,7 +306,7 @@ class RequestBuilder {
                                     requestBuilder.method(method, requestBody).url(url!!)
                                 }
                                 else -> {
-                                    throw IllegalArgumentException("构建请求失败，请检查！")
+                                    throw IllegalArgumentException("构建请求失败，请检查构建参数！")
                                 }
                             }
                         }
@@ -356,15 +365,10 @@ class RequestBuilder {
             val call = okHttpClient.newCall(request)
 
             if (!isActive) {//检查协程是否被取消
-                if (isRecordUrl) {
-                    logDebug(tag, "移除记录[$url]")
-                    removeUrl(url!!)
-                }
-
-                throw CancellationException("请求[${url}]被取消")
+                throw IllegalStateException("请求[${url}]被取消")
             }
 
-            suspendCoroutine { continuation: Continuation<Response> ->
+            suspendCancellableCoroutine { continuation: CancellableContinuation<Response> ->
                 call.enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         logDebug(tag, "请求失败")
@@ -375,29 +379,16 @@ class RequestBuilder {
                                 file.delete()
                             }
                         }
-
-                        if (isRecordUrl) {
-                            this@withContext.launch {
-                                logDebug(tag, "移除记录[$url]")
-                                removeUrl(url!!)
-                            }
-                        }
-
+                        //这抛出异常是为异常捕获中移除url记录
                         continuation.resumeWithException(e)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
                         logDebug(tag, "请求成功")
 
-                        if (isRecordUrl) {
-                            this@withContext.launch {
-                                logDebug(tag, "移除记录[$url]")
-                                removeUrl(url!!)
-                            }
-                        }
-
-                        if (!isActive) {//检查协程是否被取消
-                            continuation.resumeWithException(CancellationException("请求[${url}]被取消"))
+                        if (!continuation.isActive) {//检查协程是否被取消
+                            //这抛出异常是为异常捕获中移除url记录
+                            continuation.resumeWithException(IllegalStateException("请求[${url}]被取消"))
                         } else {
                             continuation.resume(response)
                         }
@@ -405,6 +396,11 @@ class RequestBuilder {
                 })
             }
         }
+
+        if (isRecordUrl)
+            removeUrl(url!!)
+
+        return response
     }
 
     private fun createRequestHeader(): Request.Builder {

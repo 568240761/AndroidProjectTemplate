@@ -11,7 +11,7 @@ import com.ly.module.basic.manager.PermissionManager
  * 项目里所有[Activity]的父类
  */
 @Suppress("KDocUnresolvedReference")
-class BasicActivity : AppCompatActivity(), ObservableManager.Observer {
+abstract class BasicActivity : AppCompatActivity(), ObservableManager.Observer {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

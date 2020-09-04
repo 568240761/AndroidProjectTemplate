@@ -1,0 +1,19 @@
+//最基本的androidx依赖配置
+
+dependencies {
+    implementation kotlin_stdlib
+
+    implementation(deps.core) {
+        exclude group: "androidx.lifecycle"
+    }
+
+    implementation(deps.appcompat) {
+        exclude group: "androidx.lifecycle"
+    }
+
+    implementation(deps.constraintlayout) {
+        exclude group: "androidx.lifecycle"
+    }
+
+    implementation deps.fragment
+}

@@ -8,7 +8,7 @@ import com.ly.module.basic.manager.ObservableManager
  * Created by Lan Yang on 2020/8/20
  * 项目里所有[Fragment]的父类
  */
-class BasicFragment : Fragment(),ObservableManager.Observer {
+abstract class BasicFragment : Fragment(),ObservableManager.Observer {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
