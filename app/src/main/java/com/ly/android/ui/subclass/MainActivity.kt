@@ -1,4 +1,4 @@
-package com.ly.android.ui.activity
+package com.ly.android.ui.subclass
 
 import android.os.Bundle
 import com.ly.android.R

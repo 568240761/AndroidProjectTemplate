@@ -16,4 +16,8 @@ dependencies {
     }
 
     implementation deps.fragment
+
+    testImplementation deps.test_junit
+    androidTestImplementation deps.android_test_junit
+    androidTestImplementation deps.android_test_espresso
 }

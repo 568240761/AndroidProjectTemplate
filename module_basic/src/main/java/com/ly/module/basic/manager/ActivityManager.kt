@@ -1,8 +1,6 @@
 package com.ly.module.basic.manager
 
 import android.app.Activity
-import androidx.annotation.MainThread
-import java.util.*
 
 /**
  * Created by Lan Yang on 2020/8/20
@@ -10,7 +8,7 @@ import java.util.*
  */
 object ActivityManager {
 
-    private val list = LinkedList<Activity>()
+    private val list = ArrayList<Activity>()
 
     internal fun addActivity(activity: Activity) = list.add(activity)
 
@@ -27,11 +25,14 @@ object ActivityManager {
     }
 
     /**
-     * 在UI线程调用该方法，避免抛出[ConcurrentModificationException]异常
+     * 避免抛出[ConcurrentModificationException]异常
      */
-    @MainThread
     fun finishAllActivity() {
-        for (activity in list)
+        val iterable = list.iterator()
+        while (iterable.hasNext()) {
+            val activity = iterable.next()
+            iterable.remove()
             activity.finish()
+        }
     }
 }
