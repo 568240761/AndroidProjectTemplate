@@ -13,6 +13,10 @@ import com.ly.module.basic.manager.PermissionManager
 @Suppress("KDocUnresolvedReference")
 abstract class BasicActivity : AppCompatActivity(), ObservableManager.Observer {
 
+    protected val tag by lazy {
+        this.javaClass.simpleName
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ActivityManager.addActivity(this)

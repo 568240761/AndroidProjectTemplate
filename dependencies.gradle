@@ -1,21 +1,23 @@
 //最基本的androidx依赖配置
 
 dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation kotlin_stdlib
 
-    implementation(deps.core) {
-        exclude group: "androidx.lifecycle"
-    }
+    implementation(deps.core_ktx)
 
-    implementation(deps.appcompat) {
-        exclude group: "androidx.lifecycle"
-    }
+    implementation(deps.appcompat)
+
+    implementation(deps.fragment_ktx)
 
     implementation(deps.constraintlayout) {
-        exclude group: "androidx.lifecycle"
+        exclude group: "androidx.appcompat"
+        exclude group: "androidx.core"
     }
 
-    implementation deps.fragment
+    implementation(deps.lifecycle)
+    implementation(deps.lifecycle_extensions)
+    implementation(deps.viewmodel)
 
     testImplementation deps.test_junit
     androidTestImplementation deps.android_test_junit

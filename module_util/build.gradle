@@ -3,6 +3,5 @@ apply from: '../module.gradle'
 apply from: '../dependencies.gradle'
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation deps.gson
 }
