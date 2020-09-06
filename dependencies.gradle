@@ -10,10 +10,7 @@ dependencies {
 
     implementation(deps.fragment_ktx)
 
-    implementation(deps.constraintlayout) {
-        exclude group: "androidx.appcompat"
-        exclude group: "androidx.core"
-    }
+    implementation(deps.constraintlayout)
 
     implementation(deps.lifecycle)
     implementation(deps.lifecycle_extensions)

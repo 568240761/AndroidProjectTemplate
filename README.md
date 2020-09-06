@@ -39,7 +39,8 @@ UI相关的代码写在AppActivity/AppFragment的子类以及xml布局文件中�
 - BasicFragment，Fragment的封装类；
 - ActivityManager，Activity的管理类；
 - ObservableManager，数据变化通知管理类；
-- PermissionManager，动态权限管理类。
+- PermissionManager，动态权限管理类；
+- CloseProcessHandler，避免应用崩溃后重启的类。
 ### module_util
 工具复用模块，不包含任何业务逻辑代码。
 
