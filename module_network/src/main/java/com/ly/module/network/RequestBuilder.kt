@@ -20,6 +20,7 @@ import kotlin.coroutines.resumeWithException
 /**
  * Created by Lan Yang on 2020/8/23
  *
+ * 网络请求的构建
  * T 表明网络响应的数据需要通过gson转为实体类型
  * TODO:待测试、协程被取消(addUrl、removeUrl是否能正常执行)
  */

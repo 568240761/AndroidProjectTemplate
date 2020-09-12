@@ -2,6 +2,7 @@ package com.ly.android
 
 import android.app.Application
 import com.ly.module.basic.handler.CloseProcessHandler
+import com.ly.module.util.log.isPrintLog
 
 /**
  * Created by Lan Yang on 2020/9/4
@@ -17,6 +18,8 @@ class AppApplication : Application() {
         super.onCreate()
 
         app = this
+
+        isPrintLog = BuildConfig.DEBUG
         //解决应用崩溃后重启的问题
         CloseProcessHandler.init()
     }

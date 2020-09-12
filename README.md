@@ -3,11 +3,11 @@
 
 项目基本配置：
 ```groovy
-compileSdkVersion 29
-buildToolsVersion "29.0.3"
+compileSdkVersion 30
+buildToolsVersion "30.0.2"
 
 minSdkVersion 21
-targetSdkVersion 29
+targetSdkVersion 30
 ```
 
 在项目中[Jetpack](https://developer.android.google.cn/jetpack)使用的模块如下：

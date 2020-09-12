@@ -1,6 +1,12 @@
 apply from: '../module.gradle'
 
+apply plugin: 'kotlin-kapt'
+
+apply from: '../dependencies.gradle'
+
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation kotlin_stdlib
+    implementation deps.glide
+    kapt deps.glide_compiler
+
+    implementation project(":module_util")
 }

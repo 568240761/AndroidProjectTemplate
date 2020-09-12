@@ -8,9 +8,9 @@ ext.kotlinx_coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-andro
 
 def build_versions = [:]
 build_versions.min_sdk = 21
-build_versions.compile_sdk = 29
-build_versions.target_sdk = 29
-build_versions.build_tools = "29.0.3"
+build_versions.compile_sdk = 30
+build_versions.target_sdk = 30
+build_versions.build_tools = "30.0.2"
 ext.build_versions = build_versions
 
 ext.deps = [:]
@@ -31,6 +31,10 @@ deps.viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 def okhttp_version = "4.8.1"
 deps.okhttp = "com.squareup.okhttp3:okhttp:$okhttp_version"
 deps.okhttp_logging = "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+
+def glide_version = "4.11.0"
+deps.glide = "com.github.bumptech.glide:glide:$glide_version"
+deps.glide_compiler = "com.github.bumptech.glide:compiler:$glide_version"
 
 deps.gson = 'com.google.code.gson:gson:2.8.6'
 

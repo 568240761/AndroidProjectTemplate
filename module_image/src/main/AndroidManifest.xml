@@ -1,4 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ly.module.image">
+    <!--  访问网络的权限；如果计划从 URL 或一个网络连接中加载数据，需要该权限。 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--  访问网络状态的权限；该权限用于 Glide 实现重新连接到网络时重启之前失败的请求  -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!--  读文件的权限；如果要从本地文件夹或 DCIM 或图库中加载图片，需要该权限。  -->
+    <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+
+    <!--  写文件的权限；如果要使用 ExternalPreferredCacheDiskCacheFactory 来将 Glide 的缓存存储到公有 SD 卡上，需要该权限。  -->
+    <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 </manifest>
