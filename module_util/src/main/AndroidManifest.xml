@@ -19,7 +19,7 @@
             <!-- 元数据 -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepath" />
+                android:resource="@xml/util_filepath" />
         </provider>
     </application>
 </manifest>
