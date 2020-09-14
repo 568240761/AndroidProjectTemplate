@@ -62,9 +62,23 @@ UI相关的代码写在AppActivity/AppFragment的子类以及xml布局文件中�
 - 支持get、head、post、delete、put、patch网络请求方法；
 - 支持Content-Type为表单、json、multipart/form-data以及上传文件时自定义Content-Type；
 - 支持显示上传、下载文件的进度。
+
+示例展示：
+```kotlin
+RequestBuilder().url("https://www.baidu.com").build()
+```
 ### module_image
 图像复用模块，不包含任何业务逻辑代码。
 
+使用了kotlin协程和图片加载库[glide](https://github.com/bumptech/glide)
+
+示例展示：
+```kotlin
+ImageLoader.showImage(
+    context = activity,
+    imageView = imageView,
+    any = R.drawable.image_shape_placeholder)
+```
 ## 适配问题
 ### Android 8.0
 #### Activity的透明主题崩溃问题该异常为：
