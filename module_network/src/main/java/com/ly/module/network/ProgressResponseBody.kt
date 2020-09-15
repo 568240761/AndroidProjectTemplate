@@ -1,6 +1,8 @@
 package com.ly.module.network
 
+import com.ly.module.util.log.logDebug
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
@@ -16,9 +18,11 @@ import java.io.FileOutputStream
 class ProgressResponseBody(
     private val responseBody: ResponseBody,
     private val coroutineScope: CoroutineScope,
-    private val channel: Channel<Int>,
+    private val channel: Channel<Int>?,
     private var path: String?
 ) : ResponseBody() {
+
+    private val tag = this::class.java.simpleName
 
     private val fileOutputStream: FileOutputStream? by lazy {
         if (path.isNullOrEmpty()) {
@@ -30,7 +34,7 @@ class ProgressResponseBody(
         }
     }
 
-    private val length = responseBody.contentLength().toDouble()
+    private val length = responseBody.contentLength()
 
     override fun contentLength(): Long {
         return responseBody.contentLength()
@@ -46,32 +50,56 @@ class ProgressResponseBody(
 
     inner class ByteForwardingSource(source: Source) : ForwardingSource(source) {
         private var downloadLength = 0L
+        private var prevProgress = -1
 
         override fun read(sink: Buffer, byteCount: Long): Long {
-            val byteRead = super.read(sink, byteCount)
+            val byteRead: Long
 
-            downloadLength += if (byteRead != -1L) {
-                fileOutputStream?.also {
-                    sink.writeTo(it)
+            try {
+                byteRead = super.read(sink, byteCount)
+
+                downloadLength += if (byteRead != -1L) {
+                    fileOutputStream?.also {
+                        sink.writeTo(it)
+                    }
+
+                    byteRead
+                } else {
+                    fileOutputStream?.flush()
+                    fileOutputStream?.close()
+
+                    0
                 }
-
-                byteRead
-            } else {
+            } catch (e: Exception) {
                 fileOutputStream?.flush()
                 fileOutputStream?.close()
-
-                0
+                throw e
             }
 
-            coroutineScope.launch {
+            channel?.also {
                 val progress = (downloadLength.toDouble() / length * 100).toInt()
+
+                if (prevProgress != progress) {//避免重复发送相同的进度值
+                    if (progress == 100 && downloadLength == length) {
+                        sendProgress(progress, channel)
+                    } else {
+                        sendProgress(progress, channel)
+                    }
+                }
+            }
+
+            return byteRead
+        }
+
+        private fun sendProgress(progress: Int, channel: Channel<Int>) {
+            prevProgress = progress
+            logDebug(tag, "progress = $progress")
+            coroutineScope.launch(Dispatchers.IO) {
                 channel.send(progress)
 
                 if (progress == 100)
                     channel.close()
             }
-
-            return byteRead
         }
     }
 }

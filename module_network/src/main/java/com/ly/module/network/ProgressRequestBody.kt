@@ -1,7 +1,9 @@
 package com.ly.module.network
 
+import com.ly.module.util.log.logDebug
 import com.ly.module.util.log.logError
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
@@ -19,8 +21,10 @@ internal class ProgressRequestBody(
     private val channel: Channel<Int>
 ) : RequestBody() {
 
+    private val tag = this::class.java.simpleName
+
     private val totalByteLength by lazy {
-        contentLength().toDouble()
+        contentLength()
     }
 
     override fun contentType(): MediaType? {
@@ -47,16 +51,30 @@ internal class ProgressRequestBody(
     inner class ByteForwardingSink(sink: Sink) : ForwardingSink(sink) {
 
         private var uploadLength = 0L
+        private var prevProgress = -1
 
         override fun write(source: Buffer, byteCount: Long) {
             super.write(source, byteCount)
             uploadLength += byteCount
 
-            coroutineScope.launch {
-                val length = (uploadLength.toDouble() / totalByteLength * 100).toInt()
-                channel.send(length)
+            val progress = (uploadLength.toDouble() / totalByteLength * 100).toInt()
 
-                if (length == 100)
+            if (prevProgress != progress) {//避免重复发送相同的进度值
+                if (progress == 100 && uploadLength == totalByteLength) {
+                    sendProgress(progress)
+                } else {
+                    sendProgress(progress)
+                }
+            }
+        }
+
+        private fun sendProgress(progress: Int) {
+            prevProgress = progress
+            logDebug(tag, "progress = $progress")
+            coroutineScope.launch(Dispatchers.IO) {
+                channel.send(progress)
+
+                if (progress == 100)
                     channel.close()
             }
         }

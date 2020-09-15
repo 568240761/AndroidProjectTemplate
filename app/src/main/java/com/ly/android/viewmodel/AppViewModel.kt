@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ly.module.util.log.logError
 import com.ly.android.viewmodel.subviewmodel.MainViewModel
+import com.ly.module.util.log.logDebug
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
@@ -29,8 +31,12 @@ abstract class AppViewModel : ViewModel() {
         try {
             block()
         } catch (e: Exception) {
-            logError(tag, "", e)
-            error()
+            if (e !is CancellationException) {
+                logError(tag, "", e)
+                error()
+            }else{
+                logDebug(tag, "协程被取消")
+            }
         }
     }
 }
