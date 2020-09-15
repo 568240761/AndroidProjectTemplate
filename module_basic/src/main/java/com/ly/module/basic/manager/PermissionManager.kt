@@ -3,6 +3,7 @@ package com.ly.module.basic.manager
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.MainThread
 import androidx.core.app.ActivityCompat
 
 /**
@@ -17,7 +18,7 @@ object PermissionManager : ActivityCompat.OnRequestPermissionsResultCallback {
     private var permissionList: List<Permission>? = null
 
     /**申请的权限全部同意之后的回调*/
-    private var grantedCallback: GrantedPermissionCallback? = null
+    private var grantedCallback: (() -> Unit)? = null
 
     /**
      * 检查动态权限
@@ -27,13 +28,14 @@ object PermissionManager : ActivityCompat.OnRequestPermissionsResultCallback {
      * @param granted 申请的权限全部同意之后的回调
      */
     @Suppress("KDocUnresolvedReference")
+    @MainThread
     fun checkPermission(
         activity: Activity,
         permissions: ArrayList<Permission>,
-        granted: GrantedPermissionCallback? = null
+        granted: (() -> Unit)? = null
     ) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            granted?.onGranted()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {//小于android 6.0
+            granted?.invoke()
         } else {
             permissionList = permissions.filter {
                 //判断是否已经拥有该权限
@@ -45,7 +47,13 @@ object PermissionManager : ActivityCompat.OnRequestPermissionsResultCallback {
 
             if (!permissionList.isNullOrEmpty()) {
                 val array = permissionList!!.map { it.permission }
+                grantedCallback = granted
                 activity.requestPermissions(array.toTypedArray(), REQUEST_CODE_FOR_PERMISSION)
+            } else {//权限都已经允许
+                granted?.invoke()
+
+                permissionList = null
+                grantedCallback = null
             }
         }
     }
@@ -60,14 +68,14 @@ object PermissionManager : ActivityCompat.OnRequestPermissionsResultCallback {
             for ((index, result) in grantResults.withIndex()) {
                 if (result == PackageManager.PERMISSION_DENIED) {//被拒绝
                     if (pass) pass = false
-                    permissionList?.get(index)?.denied?.onDenied()
+                    permissionList?.get(index)?.denied?.invoke()
                 } else {
-                    permissionList?.get(index)?.granted?.onGranted()
+                    permissionList?.get(index)?.granted?.invoke()
                 }
             }
 
             if (pass)
-                grantedCallback?.onGranted()
+                grantedCallback?.invoke()
 
             permissionList = null
             grantedCallback = null
@@ -78,23 +86,8 @@ object PermissionManager : ActivityCompat.OnRequestPermissionsResultCallback {
         /**权限名称*/
         val permission: String,
         /**拒绝该权限的回调*/
-        val denied: DeniedPermissionCallback? = null,
+        val denied: (() -> Unit)? = null,
         /**同意该权限的回调*/
-        val granted: GrantedPermissionCallback? = null
+        val granted: (() -> Unit)? = null
     )
-
-    interface DeniedPermissionCallback {
-        /**
-         * 拒绝的回调
-         */
-        fun onDenied()
-    }
-
-    interface GrantedPermissionCallback {
-        /**
-         * 同意的回调
-         */
-        fun onGranted()
-    }
-
 }
