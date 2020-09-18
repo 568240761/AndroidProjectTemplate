@@ -3,8 +3,8 @@ package com.ly.module.util
 import android.app.ActivityManager
 import android.content.Context
 import androidx.core.content.ContextCompat
-import com.ly.module.util.log.logDebug
-import com.ly.module.util.log.logError
+import com.ly.module.log.logDebug
+import com.ly.module.log.logError
 
 /**
  * Created by Lan Yang on 2020/8/20

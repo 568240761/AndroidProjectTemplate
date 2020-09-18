@@ -1,6 +1,6 @@
 package com.ly.module.network
 
-import com.ly.module.util.log.isPrintLog
+import com.ly.module.log.isPrintLog
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit

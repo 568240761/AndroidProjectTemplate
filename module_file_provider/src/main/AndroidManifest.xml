@@ -1,0 +1,25 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ly.module.file_provider">
+    <!-- 适配8.0以上更新应用时跳转到安装页面的权限 -->
+    <!--    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />-->
+
+    <application>
+        <!--
+            从 Android N（7.0） 开始，将严格执行 StrictMode 模式。
+            而从 Android N 开始，将不允许在 App 间，使用 file:// 的方式。
+            传递一个 File ，否者会抛出 FileUriExposedException 的异常引发 Crash。
+            解决方案就是通过FileProvider 用 content:// 代替 file://
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- 元数据 -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_filepath" />
+        </provider>
+
+    </application>
+</manifest>

@@ -13,7 +13,7 @@ import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.FutureTarget
-import com.ly.module.util.log.logError
+import com.ly.module.log.logError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

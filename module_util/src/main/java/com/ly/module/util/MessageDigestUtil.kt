@@ -1,7 +1,7 @@
 package com.ly.module.util
 
-import com.ly.module.util.log.logDebug
-import com.ly.module.util.log.logError
+import com.ly.module.log.logDebug
+import com.ly.module.log.logError
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.*

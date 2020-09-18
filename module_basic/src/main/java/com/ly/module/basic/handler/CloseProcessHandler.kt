@@ -2,7 +2,7 @@ package com.ly.module.basic.handler
 
 import android.os.Process
 import com.ly.module.basic.manager.ActivityManager
-import com.ly.module.util.log.logError
+import com.ly.module.log.logError
 import kotlin.system.exitProcess
 
 /**

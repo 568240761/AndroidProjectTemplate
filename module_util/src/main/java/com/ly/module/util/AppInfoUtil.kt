@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.ly.module.util.log.isPrintLog
-import com.ly.module.util.log.logDebug
+import com.ly.module.log.isPrintLog
+import com.ly.module.log.logDebug
 
 /**
  * Created by Lan Yang on 2020/8/22
@@ -52,7 +52,10 @@ class AppInfoUtil {
                     if (isPrintLog)
                         for (sign in it) {
                             sign?.let {
-                                logDebug("AppInfoUtil-getSignatureInfo", sign.toCharsString())
+                                logDebug(
+                                    "AppInfoUtil-getSignatureInfo",
+                                    sign.toCharsString()
+                                )
                             }
                         }
 

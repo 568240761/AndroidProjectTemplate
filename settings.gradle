@@ -1,3 +1,6 @@
+include ':module_file_provider'
+include ':module_log'
+include ':module_storage'
 include ':module_util'
 include ':module_image'
 include ':module_network'

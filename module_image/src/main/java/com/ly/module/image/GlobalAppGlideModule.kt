@@ -5,7 +5,7 @@ import android.util.Log
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
-import com.ly.module.util.log.isPrintLog
+import com.ly.module.log.isPrintLog
 
 /**
  * Created by Lan Yang on 2020/9/12

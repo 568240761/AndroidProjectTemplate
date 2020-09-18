@@ -2,7 +2,7 @@ package com.ly.android
 
 import com.ly.android.viewmodel.AppViewModel
 import com.ly.module.network.RequestBuilder
-import com.ly.module.util.log.logDebug
+import com.ly.module.log.logDebug
 
 /**
  * Created by Lan Yang on 2020/9/15

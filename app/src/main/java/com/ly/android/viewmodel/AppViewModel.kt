@@ -2,9 +2,9 @@ package com.ly.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ly.module.util.log.logError
+import com.ly.module.log.logError
 import com.ly.android.viewmodel.subviewmodel.MainViewModel
-import com.ly.module.util.log.logDebug
+import com.ly.module.log.logDebug
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 

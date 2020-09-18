@@ -1,5 +1,5 @@
 # AndroidProjectTemplate
-新建Android项目时，需要重新配置，这样会比较太慢；而且有些工具类可以重复使用，粘来粘去又很麻烦；所以就根据以往的项目经验再加上现在很流行的[Jetpack](https://developer.android.google.cn/jetpack)整理出了这个快速新建Android项目模板。
+新建Android项目时，需要重新配置，这样会比较太慢；而且有些工具类可以重复使用，粘来粘去又很麻烦；所以就根据以往的项目经验再加上现在很流行的[Jetpack](https://developer.android.google.cn/jetpack)和Kotlin协程整理出了这个快速新建Android项目模板。
 
 项目基本配置：
 ```groovy
@@ -32,7 +32,7 @@ targetSdkVersion 30
 
 UI相关的代码写在AppActivity/AppFragment的子类以及xml布局文件中里，业务相关的代码写在AppViewModel的子类里，数据相关的代码写在AppRepository的子类里。
 ### module_basic
-基本复用模块，不包含任何业务逻辑代码。
+基本模块，不包含任何业务逻辑代码。
 
 类的简单介绍：
 - BasicActivity，Activity的封装类；
@@ -41,34 +41,17 @@ UI相关的代码写在AppActivity/AppFragment的子类以及xml布局文件中�
 - ObservableManager，数据变化通知管理类；
 - PermissionManager，动态权限管理类；
 - CloseProcessHandler，避免应用崩溃后重启的类。
-### module_util
-工具复用模块，不包含任何业务逻辑代码。
+### module_file_provider
+分享文件模块；当需要向其他应用分享文件时，需要依赖该模块。
+
+从 Android 7.0 开始，向其他应用分享文件的 Uri 从 file:// 替换为 content://。
+
+注意，一定要根据实际业务需求去更改配置文件(res/xml/file_provider_filepath.xml)。
 
 类的简单介绍：
-- Log.kt，打印日志相关方法的Kotlin文件；
-- AppInfoUtil，获取应用信息的工具类；
-- DateUtil，时间相关的工具类；
-- DeviceUtil，关于手机设备方面的工具类；
-- FileProviderUtil，FileProvider类相关的工具类
-- GsonUtil，gson相关的工具类；
-- JavaReflectUtil，反射工具类；
-- MessageDigestUtil，消息摘要相关的工具类
-- ProcessUtil，进程方面的工具类；
-- ResourcesUtil，Resources类相关的工具类
-### module_network
-网络复用模块，不包含任何业务逻辑代码。
-
-使用了kotlin协程和网络请求库[okhttp](https://github.com/square/okhttp)，功能如下：
-- 支持get、head、post、delete、put、patch网络请求方法；
-- 支持Content-Type为表单、json、multipart/form-data以及上传文件时自定义Content-Type；
-- 支持显示上传、下载文件的进度。
-
-示例展示：
-```kotlin
-RequestBuilder().url("https://www.baidu.com").build()
-```
+- FileProviderUtil，FileProvider类相关的工具类。
 ### module_image
-图像复用模块，不包含任何业务逻辑代码。
+图像模块，不包含任何业务逻辑代码。
 
 使用了kotlin协程和图片加载库[glide](https://github.com/bumptech/glide)
 
@@ -79,6 +62,36 @@ ImageLoader.showImage(
     imageView = imageView,
     any = R.drawable.image_shape_placeholder)
 ```
+### module_log
+日志模块，类的简单介绍：
+- Log.kt，打印日志相关方法的Kotlin文件；
+### module_network
+网络模块，不包含任何业务逻辑代码。
+
+使用了kotlin协程和网络请求库[okhttp](https://github.com/square/okhttp)，功能如下：
+- 支持get、head、post、delete、put、patch网络请求方法；
+- 支持Content-Type为表单、json、multipart/form-data以及上传文件时自定义Content-Type；
+- 支持显示上传、下载文件的进度。
+
+示例展示：
+```kotlin
+RequestBuilder().url("https://www.baidu.com").build()
+```
+### module_storage
+共享存储模块，访问共享存储空间中的文件。
+
+### module_util
+工具模块，不包含任何业务逻辑代码。
+
+类的简单介绍：
+- AppInfoUtil，获取应用信息的工具类；
+- DateUtil，时间相关的工具类；
+- DeviceUtil，关于手机设备方面的工具类；
+- GsonUtil，gson相关的工具类；
+- JavaReflectUtil，反射工具类；
+- MessageDigestUtil，消息摘要相关的工具类；
+- ProcessUtil，进程方面的工具类；
+- ResourcesUtil，Resources类相关的工具类。
 ## 适配问题
 ### Android 8.0
 #### Activity的透明主题崩溃问题该异常为：

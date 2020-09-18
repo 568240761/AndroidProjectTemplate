@@ -1,4 +1,4 @@
-package com.ly.module.util
+package com.ly.module.file_provider
 
 import android.content.Context
 import android.content.Intent
@@ -17,7 +17,9 @@ class FileProviderUtil {
 
         fun authority(context: Context) = "${context.packageName}.FileProvider"
 
-        /**将[file]路径转换为[Uri]*/
+        /**
+         * 将[File]路径转换为[Uri]
+         */
         fun fileToUri(context: Context, file: File): Uri {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
@@ -33,7 +35,7 @@ class FileProviderUtil {
         /**
          * 安装APK文件
          *
-         * Android 8.0+更新应用时跳转到安装页面需要下面的权限
+         * Android 8.0+更新应用时跳转到安装页面需要下面的权限加到清单文件中
          * <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
          */
         fun installApk(context: Context, apk: File) {

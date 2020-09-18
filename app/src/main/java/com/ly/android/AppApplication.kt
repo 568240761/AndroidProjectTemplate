@@ -2,7 +2,7 @@ package com.ly.android
 
 import android.app.Application
 import com.ly.module.basic.handler.CloseProcessHandler
-import com.ly.module.util.log.isPrintLog
+import com.ly.module.log.isPrintLog
 
 /**
  * Created by Lan Yang on 2020/9/4

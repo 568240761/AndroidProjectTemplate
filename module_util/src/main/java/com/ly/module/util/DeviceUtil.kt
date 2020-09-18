@@ -8,8 +8,8 @@ import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.text.TextUtils
 import androidx.core.content.ContextCompat
-import com.ly.module.util.log.logDebug
-import com.ly.module.util.log.logError
+import com.ly.module.log.logDebug
+import com.ly.module.log.logError
 import java.io.FileReader
 import java.io.InputStreamReader
 import java.io.LineNumberReader

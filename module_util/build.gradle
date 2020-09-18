@@ -4,4 +4,5 @@ apply from: '../dependencies.gradle'
 
 dependencies {
     implementation deps.gson
+    implementation project(':module_log')
 }

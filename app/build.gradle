@@ -50,5 +50,6 @@ apply from: '../dependencies.gradle'
 dependencies {
     implementation project(":module_basic")
     implementation project(":module_util")
+    implementation project(":module_log")
     implementation project(":module_network")
 }

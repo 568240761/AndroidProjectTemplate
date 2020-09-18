@@ -1,6 +1,6 @@
 package com.ly.module.network
 
-import com.ly.module.util.log.logDebug
+import com.ly.module.log.logDebug
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl

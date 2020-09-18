@@ -1,7 +1,7 @@
 package com.ly.module.network
 
-import com.ly.module.util.log.logDebug
-import com.ly.module.util.log.logError
+import com.ly.module.log.logDebug
+import com.ly.module.log.logError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel

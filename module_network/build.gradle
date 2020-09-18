@@ -13,5 +13,6 @@ dependencies {
     androidTestImplementation deps.android_test_junit
     androidTestImplementation deps.android_test_espresso
 
-    implementation project(":module_util")
+    implementation project(':module_log')
+    implementation project(':module_util')
 }

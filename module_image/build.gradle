@@ -8,5 +8,5 @@ dependencies {
     implementation deps.glide
     kapt deps.glide_compiler
 
-    implementation project(":module_util")
+    implementation project(':module_log')
 }
