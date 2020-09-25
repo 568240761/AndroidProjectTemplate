@@ -28,6 +28,7 @@ class ProgressResponseBody(
         if (path.isNullOrEmpty()) {
             null
         } else {
+            //该文件只能存放应用专属目里，否则在Android 10开始会报错。
             val tempFile = File(path!!)
             val fileOutputStream = FileOutputStream(tempFile)
             fileOutputStream

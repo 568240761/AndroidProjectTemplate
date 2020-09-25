@@ -18,7 +18,7 @@ class FileProviderUtil {
         fun authority(context: Context) = "${context.packageName}.FileProvider"
 
         /**
-         * 将[File]路径转换为[Uri]
+         * 将应用内的[File]路径转换为[Uri]
          */
         fun fileToUri(context: Context, file: File): Uri {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -6,7 +6,7 @@ import android.net.Uri
  * Created by Lan Yang on 2020/9/19
  * 音频文件信息实体类
  */
-class AudioFile(
+data class AudioFile(
     /**音频文件在设备上的唯一ID*/
     val id: Long,
     /**音频文件名称*/
